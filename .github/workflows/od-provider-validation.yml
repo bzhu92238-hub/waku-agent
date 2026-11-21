@@ -1,0 +1,22 @@
+name: OpenDesign Go provider validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/opendesign-go-provider
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[dev,hosted]'
+      - run: make gate
+      - run: make lint
+      - run: python scripts/validate_skills.py
+      - run: python scripts/generate_env_example.py --check
+      - run: git diff --check
